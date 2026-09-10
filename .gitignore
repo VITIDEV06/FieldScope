@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+backend/venv/
+
+# Node
+backend/node_modules/
+
+# Datos locales / modelos
+backend/data/*.db
+backend/data/qvac-cache/
+backend/data/*.gguf
+
+# Secretos locales
+backend/.env

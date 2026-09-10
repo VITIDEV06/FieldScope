@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#07111f" />
+  <meta
+    name="description"
+    content="Fieldscope — Customer Installed Base Intelligence. Captura conversacional, Customer 360, mapa y analítica."
+  />
+  <title>Fieldscope Intelligence</title>
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <div class="noise-layer"></div>
+
+  <div class="app-shell">
+
+    <!-- ======================================================
+         SIDEBAR
+         ====================================================== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <a class="brand" href="#" aria-label="Fieldscope">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40">
+              <defs>
+                <linearGradient id="brandGradient" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#70e4ff"/>
+                  <stop offset="0.48" stop-color="#5097ff"/>
+                  <stop offset="1" stop-color="#8b7cff"/>
+                </linearGradient>
+              </defs>
+              <circle cx="20" cy="20" r="13" fill="none" stroke="url(#brandGradient)" stroke-width="2.4"/>
+              <circle cx="20" cy="20" r="4.4" fill="url(#brandGradient)"/>
+              <path d="M20 2.8v7.1M20 30.1v7.1M2.8 20h7.1M30.1 20h7.1" stroke="url(#brandGradient)" stroke-width="2.1" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="brand-copy">
+            <span class="brand-name">Fieldscope</span>
+            <span class="brand-sub">Installed Base Intelligence</span>
+          </div>
+        </a>
+
+        <button class="mobile-close" id="mobileClose" type="button" aria-label="Cerrar menú">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <div class="nav-caption">Workspace</div>
+
+      <nav class="nav-list" aria-label="Navegación principal">
+        <button class="nav-item is-active" data-view="capture" type="button">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 5.5h16v10H9l-5 4v-14Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8 10h8M8 13h5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </span>
+          <span class="nav-copy">
+            <strong>Captura</strong>
+            <small>Observación inteligente</small>
+          </span>
+          <span class="nav-indicator"></span>
+        </button>
+
+        <button class="nav-item" data-view="customer" type="button">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24"><path d="M5 20V7l7-4 7 4v13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 20v-6h6v6M8 9h.01M12 9h.01M16 9h.01" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </span>
+          <span class="nav-copy">
+            <strong>Cliente 360</strong>
+            <small>Vista por instalación</small>
+          </span>
+          <span class="nav-indicator"></span>
+        </button>
+
+        <button class="nav-item" data-view="map" type="button">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24"><path d="M9 4.5 4 6.5v13l5-2 6 2 5-2v-13l-5 2-6-2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 4.5v13M15 6.5v13" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+          </span>
+          <span class="nav-copy">
+            <strong>Geografía</strong>
+            <small>Navegación territorial</small>
+          </span>
+          <span class="nav-indicator"></span>
+        </button>
+
+        <button class="nav-item" data-view="dashboard" type="button">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V5M16 20v-8M22 20V8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </span>
+          <span class="nav-copy">
+            <strong>Panorama</strong>
+            <small>Indicadores y tendencias</small>
+          </span>
+          <span class="nav-indicator"></span>
+        </button>
+      </nav>
+
+      <div class="sidebar-spacer"></div>
+
+      <div class="system-card">
+        <div class="system-card-head">
+          <span class="system-pulse" id="apiStatusDot"></span>
+          <div>
+            <div class="system-title" id="apiStatusLabel">Conectando API</div>
+            <div class="system-subtitle" id="aiModeLabel">Verificando motor de IA…</div>
+          </div>
+        </div>
+        <div class="system-divider"></div>
+        <div class="system-meta">
+          <span>Backend</span>
+          <strong>127.0.0.1:8001</strong>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="avatar">FE</div>
+        <div class="sidebar-user">
+          <strong>Field Employee</strong>
+          <span>Customer Intelligence</span>
+        </div>
+        <span class="secure-dot" title="Sesión local"></span>
+      </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ======================================================
+         MAIN APP
+         ====================================================== -->
+    <div class="main-shell">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu" id="mobileMenu" type="button" aria-label="Abrir menú">
+            <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+
+          <div class="breadcrumb-app">
+            <span>Customer Installed Base</span>
+            <svg viewBox="0 0 20 20"><path d="m7.5 5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <strong id="currentViewLabel">Captura</strong>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="live-pill" id="livePill">
+            <span class="live-dot"></span>
+            <span id="globalStatusText">Sistema operativo</span>
+          </div>
+
+          <div class="topbar-separator"></div>
+
+          <div class="topbar-date">
+            <span id="todayLabel">—</span>
+            <strong id="clockLabel">--:--</strong>
+          </div>
+        </div>
+      </header>
+
+      <main class="workspace">
+
+        <!-- ==================================================
+             CAPTURA
+             ================================================== -->
+        <section class="view is-active" id="view-capture" data-view-panel="capture">
+          <div class="page-heading">
+            <div class="heading-copy">
+              <div class="eyebrow">
+                <span class="eyebrow-icon">
+                  <svg viewBox="0 0 20 20"><path d="M10 2.5 12 8l5.5 2-5.5 2-2 5.5L8 12l-5.5-2L8 8l2-5.5Z" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/></svg>
+                </span>
+                Conversational Intelligence
+              </div>
+              <h1>Captura de observaciones</h1>
+              <p>Convierte lo que viste en campo en información estructurada, validada y lista para análisis.</p>
+            </div>
+
+            <div class="heading-actions">
+              <label class="reporter-control">
+                <span class="control-label">Reportado por</span>
+                <span class="input-shell">
+                  <svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4 17c.5-3.2 2.6-5 6-5s5.5 1.8 6 5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                  <input type="text" id="reporterName" value="Field Employee" />
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="flow-strip" aria-label="Flujo de inteligencia">
+            <div class="flow-step is-active">
+              <span>01</span>
+              <div><strong>Capturar</strong><small>Lenguaje natural</small></div>
+            </div>
+            <div class="flow-connector"></div>
+            <div class="flow-step">
+              <span>02</span>
+              <div><strong>Entender</strong><small>QVAC local</small></div>
+            </div>
+            <div class="flow-connector"></div>
+            <div class="flow-step">
+              <span>03</span>
+              <div><strong>Validar</strong><small>Seguimiento</small></div>
+            </div>
+            <div class="flow-connector"></div>
+            <div class="flow-step">
+              <span>04</span>
+              <div><strong>Registrar</strong><small>Customer 360</small></div>
+            </div>
+          </div>
+
+          <div class="capture-layout">
+            <article class="panel chat-panel">
+              <div class="panel-header chat-header">
+                <div class="panel-title-wrap">
+                  <div class="panel-icon panel-icon-blue">
+                    <svg viewBox="0 0 24 24"><path d="M4 5.5h16v10H9l-5 4v-14Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 10h8M8 13h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                  </div>
+                  <div>
+                    <h2>Asistente de campo</h2>
+                    <p>Describe la visita como se la contarías a un colega.</p>
+                  </div>
+                </div>
+
+                <div class="conversation-state">
+                  <span class="state-dot"></span>
+                  Sesión activa
+                </div>
+              </div>
+
+              <div class="chat-log" id="chatLog"></div>
+
+              <div class="chat-suggestions" id="chatSuggestions">
+                <span class="suggestions-label">Prueba rápida</span>
+                <button class="chip" type="button" data-fill="Hospital Alpha en São Paulo tiene 3 resonadores Siemens de unos 8 años.">
+                  3 MR Siemens · 8 años
+                </button>
+                <button class="chip" type="button" data-fill="En el Hospital Norte hay dos equipos de ultrasonido, no sé la marca.">
+                  2 ultrasonidos · sin marca
+                </button>
+                <button class="chip" type="button" data-fill="Visité un hospital en Quito con equipos de rayos X, no recuerdo el nombre del hospital.">
+                  Datos incompletos
+                </button>
+              </div>
+
+              <form class="composer" id="chatForm">
+                <div class="composer-main">
+                  <textarea
+                    id="chatInput"
+                    rows="1"
+                    placeholder="Ej.: Hospital Beta en Lima tiene dos CT Philips de unos 6 años…"
+                    required
+                  ></textarea>
+
+                  <div class="composer-hint">
+                    <span>Enter para enviar</span>
+                    <span class="keyboard-key">Shift</span>
+                    <span>+</span>
+                    <span class="keyboard-key">Enter</span>
+                    <span>para nueva línea</span>
+                  </div>
+                </div>
+
+                <button type="submit" class="send-button btn-send" aria-label="Enviar observación">
+                  <svg viewBox="0 0 24 24"><path d="m4 4 16 8-16 8 3.4-8L4 4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M7.5 12H20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                </button>
+              </form>
+            </article>
+
+            <aside class="panel extract-panel">
+              <div class="panel-header">
+                <div class="panel-title-wrap">
+                  <div class="panel-icon panel-icon-violet">
+                    <svg viewBox="0 0 24 24"><path d="M7 4h10M7 9h10M7 14h6M5 2h14a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round"/></svg>
+                  </div>
+                  <div>
+                    <h2>Inteligencia extraída</h2>
+                    <p>Actualización en tiempo real.</p>
+                  </div>
+                </div>
+
+                <span class="mini-badge">Live</span>
+              </div>
+
+              <div class="extract-progress">
+                <div>
+                  <span>Calidad del registro</span>
+                  <strong>En construcción</strong>
+                </div>
+                <div class="progress-track"><div class="progress-value"></div></div>
+              </div>
+
+              <div id="extractBody" class="extract-body">
+                <div class="empty-state">
+                  <div class="empty-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                  </div>
+                  <strong>Aún no hay datos estructurados</strong>
+                  <p>Inicia una conversación para ver aquí cliente, ubicación, cantidades y equipos.</p>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ==================================================
+             CUSTOMER 360
+             ================================================== -->
+        <section class="view" id="view-customer" data-view-panel="customer">
+          <div class="page-heading">
+            <div class="heading-copy">
+              <div class="eyebrow">
+                <span class="eyebrow-icon">
+                  <svg viewBox="0 0 20 20"><path d="M3 17V6l7-3.5L17 6v11M7 17v-5h6v5" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/></svg>
+                </span>
+                Customer Intelligence
+              </div>
+              <h1>Cliente 360</h1>
+              <p>Una vista consolidada y trazable del parque instalado por cliente.</p>
+            </div>
+
+            <label class="search-control">
+              <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m15.4 15.4 4.3 4.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              <input type="text" id="customerSearch" placeholder="Buscar cliente, ciudad o país…" />
+              <span class="search-shortcut">⌘K</span>
+            </label>
+          </div>
+
+          <div class="customer-layout">
+            <aside class="panel customer-directory">
+              <div class="directory-header">
+                <div>
+                  <span class="directory-eyebrow">Directorio</span>
+                  <h2>Clientes observados</h2>
+                </div>
+                <span class="count-badge">360°</span>
+              </div>
+
+              <div class="customer-list" id="customerList"></div>
+            </aside>
+
+            <article class="panel customer-detail" id="customerDetail">
+              <div class="empty-state empty-state-large">
+                <div class="empty-icon">
+                  <svg viewBox="0 0 24 24"><path d="M5 20V7l7-4 7 4v13M9 20v-6h6v6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                </div>
+                <strong>Selecciona un cliente</strong>
+                <p>Explora equipamiento, cantidades, confianza e historial de observaciones.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- ==================================================
+             MAP
+             ================================================== -->
+        <section class="view" id="view-map" data-view-panel="map">
+          <div class="page-heading">
+            <div class="heading-copy">
+              <div class="eyebrow">
+                <span class="eyebrow-icon">
+                  <svg viewBox="0 0 20 20"><path d="M7 3 3 4.7v12L7 15l6 2 4-1.7v-12L13 5 7 3Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M7 3v12M13 5v12" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+                </span>
+                Geographic Intelligence
+              </div>
+              <h1>Mapa del parque instalado</h1>
+              <p>Navega desde región hasta cliente y entiende dónde vive tu installed base.</p>
+            </div>
+
+            <div class="geo-legend">
+              <span><i class="legend-dot legend-blue"></i> Cliente observado</span>
+              <span><i class="legend-dot legend-violet"></i> Agrupación geográfica</span>
+            </div>
+          </div>
+
+          <article class="panel map-shell">
+            <div class="map-toolbar">
+              <nav class="breadcrumb" id="mapBreadcrumb" aria-label="Ruta de navegación"></nav>
+              <div class="map-toolbar-note">Selecciona una tarjeta para profundizar</div>
+            </div>
+
+            <div class="map-grid" id="mapGrid"></div>
+          </article>
+        </section>
+
+        <!-- ==================================================
+             DASHBOARD
+             ================================================== -->
+        <section class="view" id="view-dashboard" data-view-panel="dashboard">
+          <div class="page-heading">
+            <div class="heading-copy">
+              <div class="eyebrow">
+                <span class="eyebrow-icon">
+                  <svg viewBox="0 0 20 20"><path d="M3 17V9M8 17V4M13 17v-6M18 17V7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </span>
+                Executive Overview
+              </div>
+              <h1>Panorama general</h1>
+              <p>Indicadores de cobertura, composición, antigüedad y calidad del installed base.</p>
+            </div>
+
+            <button class="secondary-button" id="seedBtn" type="button">
+              <svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              Cargar datos de ejemplo
+            </button>
+          </div>
+
+          <div class="kpi-row" id="kpiRow"></div>
+
+          <div class="analytics-grid">
+            <article class="panel chart-card">
+              <div class="chart-header">
+                <div>
+                  <span class="chart-kicker">Portfolio mix</span>
+                  <h2>Unidades por modalidad</h2>
+                </div>
+                <span class="chart-chip">Installed base</span>
+              </div>
+              <div class="chart-body" id="chartModality"></div>
+            </article>
+
+            <article class="panel chart-card">
+              <div class="chart-header">
+                <div>
+                  <span class="chart-kicker">Geographic coverage</span>
+                  <h2>Unidades por país</h2>
+                </div>
+                <span class="chart-chip">Geografía</span>
+              </div>
+              <div class="chart-body" id="chartCountry"></div>
+            </article>
+
+            <article class="panel chart-card chart-card-wide">
+              <div class="chart-header">
+                <div>
+                  <span class="chart-kicker">Lifecycle intelligence</span>
+                  <h2>Antigüedad estimada del equipamiento</h2>
+                </div>
+                <span class="chart-chip chart-chip-warning">Refresh signal</span>
+              </div>
+              <div class="chart-body chart-body-age" id="chartAge"></div>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <!-- ======================================================
+       MODAL DE CONFIRMACIÓN
+       ====================================================== -->
+  <div class="confirm-modal" id="confirmModal" aria-hidden="true">
+    <div class="confirm-backdrop" data-confirm-close></div>
+
+    <section
+      class="confirm-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirmTitle"
+      aria-describedby="confirmMessage"
+    >
+      <div class="confirm-icon-wrap">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 7h14M9 7V4h6v3M8 10v7M12 10v7M16 10v7M6.5 7l.8 13h9.4l.8-13"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <div class="confirm-copy">
+        <span class="confirm-kicker">Acción irreversible</span>
+        <h2 id="confirmTitle">Eliminar información</h2>
+        <p id="confirmMessage">¿Deseas continuar?</p>
+
+        <div class="confirm-safety-note" id="confirmSafetyNote">
+          El equipamiento instalado no se modificará.
+        </div>
+      </div>
+
+      <div class="confirm-actions">
+        <button class="confirm-button confirm-button-secondary" id="confirmCancel" type="button">
+          Cancelar
+        </button>
+
+        <button class="confirm-button confirm-button-danger" id="confirmAccept" type="button">
+          Eliminar
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/capture.js"></script>
+  <script src="js/customer360.js"></script>
+  <script src="js/geomap.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
