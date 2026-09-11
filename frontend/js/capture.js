@@ -5,6 +5,8 @@
 const Capture = (() => {
   let sessionId = null;
   let busy = false;
+  let resetTimer = null;
+  let readyToConfirm = false;
 
   const el = {};
 
@@ -15,6 +17,10 @@ const Capture = (() => {
     el.reporter = document.getElementById("reporterName");
     el.suggestions = document.getElementById("chatSuggestions");
     el.extractBody = document.getElementById("extractBody");
+    el.confirmActions = document.getElementById("confirmActions");
+    el.confirmButton = document.getElementById("confirmObservation");
+    el.cancelButton = document.getElementById("cancelObservation");
+    el.voiceButton = document.getElementById("voiceButton");
 
     renderEmptyChat();
 
@@ -28,6 +34,9 @@ const Capture = (() => {
         el.form.requestSubmit();
       }
     });
+
+    el.confirmButton?.addEventListener("click", confirmPending);
+    el.cancelButton?.addEventListener("click", cancelPending);
 
     el.suggestions.addEventListener("click", (event) => {
       const button = event.target.closest(".chip");
@@ -63,7 +72,9 @@ const Capture = (() => {
     event.preventDefault();
 
     const text = el.input.value.trim();
-    if (!text || busy) return;
+    if (!text || busy || window.FieldScopeVoice?.active) return;
+    clearTimeout(resetTimer);
+    resetTimer = null;
 
     clearEmptyState();
 
@@ -89,9 +100,17 @@ const Capture = (() => {
       if (response.status === "needs_more_info") {
         sessionId = response.session_id;
         renderExtract(response.extracted_so_far);
+        showConfirmation(false);
       }
 
-      if (response.status === "success") {
+      if (response.status === "ready_for_confirmation") {
+        sessionId = response.session_id;
+        renderExtract(response.extracted);
+        showConfirmation(true);
+        appendMessage("system", "Datos listos para revisión. Confirma para guardarlos en Installed Base.");
+      }
+
+    if (response.status === "success") {
         sessionId = null;
         renderExtract(successToExtractShape(response));
 
@@ -112,7 +131,8 @@ const Capture = (() => {
       }
 
       if (response.status === "error") {
-        sessionId = null;
+        showConfirmation(false);
+        sessionId = response.session_id;
         renderExtract(response.extracted);
         toast("No se pudo completar", response.message || "Revisa la información.", "error");
       }
@@ -122,7 +142,9 @@ const Capture = (() => {
         variant: "error",
       });
 
-      toast("Error de conexión", error.message, "error");
+      el.input.value = text;
+      autoGrow();
+      toast("No se pudo procesar", error.message, "error");
     } finally {
       setBusy(false);
     }
@@ -134,6 +156,9 @@ const Capture = (() => {
   }
 
   function buildResponseMessage(response) {
+    if (response.status === "ready_for_confirmation") {
+      return { text: response.message, variant: "default" };
+    }
     if (response.status === "needs_more_info") {
       return {
         text: response.follow_up,
@@ -146,7 +171,7 @@ const Capture = (() => {
       const categoryCount = equipment.length;
 
       const totalUnits = equipment.reduce(
-        (sum, eq) => sum + Math.max(Number(eq.quantity) || 1, 1),
+        (sum, eq) => sum + Math.max(Number(eq.quantity) || 0, 0),
         0
       );
 
@@ -178,6 +203,9 @@ const Capture = (() => {
     button.disabled = value;
 
     el.input.disabled = value;
+    el.confirmButton.disabled = value || !readyToConfirm;
+    el.cancelButton.disabled = value;
+    window.dispatchEvent(new CustomEvent("fieldscope:capture-busy", { detail: value }));
   }
 
   function appendMessage(role, text, options = {}) {
@@ -223,20 +251,64 @@ const Capture = (() => {
 
   function resetConversationAfterSuccess() {
     sessionId = null;
+    showConfirmation(false);
 
-    window.setTimeout(() => {
+    resetTimer = window.setTimeout(() => {
+      if (busy || sessionId || el.input.value.trim() || window.FieldScopeVoice?.active) return;
       // Limpia completamente la conversación para un nuevo registro.
       el.log.innerHTML = "";
       renderEmptyChat();
 
       // Limpia el panel de datos extraídos.
-      el.extractBody.innerHTML = emptyExtract();
+      renderExtract(null);
 
       // Deja el cuadro de texto listo para el siguiente hospital.
       el.input.value = "";
       autoGrow();
       el.input.focus();
     }, 1400);
+  }
+
+  function showConfirmation(show) {
+    if (!el.confirmActions) return;
+    readyToConfirm = show;
+    el.confirmActions.hidden = !sessionId;
+    el.confirmButton.disabled = busy || !show;
+  }
+
+  async function confirmPending() {
+    if (!sessionId || busy) return;
+    setBusy(true);
+    if (el.confirmButton) el.confirmButton.disabled = true;
+    try {
+      const response = await Api.confirmObservation(sessionId);
+      appendMessage("system", buildResponseMessage(response).text, { pending: false });
+      renderExtract(successToExtractShape(response));
+      window.dispatchEvent(new CustomEvent("fieldscope:data-changed", { detail: { source: "capture" } }));
+      toast("Registro completado", `${response.customer?.name || "Cliente"} se guardó localmente.`, "success");
+      resetConversationAfterSuccess();
+    } catch (error) {
+      toast("No se pudo guardar", error.message, "error");
+    } finally {
+      if (el.confirmButton) el.confirmButton.disabled = false;
+      setBusy(false);
+    }
+  }
+
+  async function cancelPending() {
+    if (!sessionId || busy) return;
+    setBusy(true);
+    try { await Api.cancelPendingObservation(sessionId); }
+    catch (error) { toast("No se pudo descartar", error.message, "error"); return; }
+    finally { setBusy(false); }
+    clearTimeout(resetTimer);
+    window.FieldScopeVoice?.cancel();
+    sessionId = null;
+    showConfirmation(false);
+    el.log.innerHTML = "";
+    renderEmptyChat();
+    renderExtract(null);
+    toast("Captura descartada", "No se guardó información en Installed Base.");
   }
 
   function successToExtractShape(response) {
@@ -283,6 +355,11 @@ const Capture = (() => {
   }
 
   function renderExtract(data) {
+    const fields = data ? [data.customer_name, data.city, data.country,
+      ...(data.equipment || []).flatMap(eq => [eq.modality, eq.quantity, eq.manufacturer, eq.model, eq.estimated_age])] : [];
+    const known = fields.filter(value => value != null && value !== "" && value !== "Desconocido").length;
+    document.getElementById("qualityLabel").textContent = fields.length ? `${known}/${fields.length} campos conocidos` : "Sin datos";
+    document.getElementById("qualityProgress").style.width = fields.length ? `${100 * known / fields.length}%` : "0%";
     if (!data) {
       el.extractBody.innerHTML = emptyExtract();
       return;
@@ -292,7 +369,7 @@ const Capture = (() => {
     const categoryCount = equipment.length;
 
     const totalUnits = equipment.reduce(
-      (sum, eq) => sum + Math.max(Number(eq.quantity) || 1, 1),
+      (sum, eq) => sum + Math.max(Number(eq.quantity) || 0, 0),
       0
     );
 
@@ -306,7 +383,7 @@ const Capture = (() => {
         <div class="value">
           ${categoryCount} ${categoryCount === 1 ? "categoría" : "categorías"}
           ·
-          ${totalUnits} ${totalUnits === 1 ? "unidad" : "unidades"}
+          ${totalUnits} ${totalUnits === 1 ? "unidad conocida" : "unidades conocidas"}
         </div>
       </div>
 
@@ -336,7 +413,7 @@ const Capture = (() => {
     const details = [
       eq.manufacturer,
       eq.model,
-      eq.estimated_age ? `${eq.estimated_age} años` : null,
+      eq.estimated_age != null ? `${eq.estimated_age} años` : null,
     ]
       .filter(Boolean)
       .join(" · ");
@@ -380,5 +457,5 @@ const Capture = (() => {
     );
   }
 
-  return { init };
+  return { init, isBusy: () => busy };
 })();

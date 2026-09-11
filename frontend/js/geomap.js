@@ -35,320 +35,8 @@ const GeoMap = (() => {
     "Otras regiones",
   ];
 
-  /*
-   * 195 estados incluidos en el catálogo operativo:
-   * 193 miembros de Naciones Unidas + Palestina + Ciudad del Vaticano.
-   *
-   * Algunos países transcontinentales pueden clasificarse de maneras
-   * distintas según el contexto. Para este proyecto se usa una sola
-   * agrupación operativa y el usuario puede crear/ajustar países manualmente.
-   */
-  const COUNTRIES_BY_REGION = {
-    "Norteamérica": [
-      "Canadá",
-      "Estados Unidos",
-    ],
-
-    "Centroamérica y Caribe": [
-      "Antigua y Barbuda",
-      "Bahamas",
-      "Barbados",
-      "Belice",
-      "Costa Rica",
-      "Cuba",
-      "Dominica",
-      "El Salvador",
-      "Granada",
-      "Guatemala",
-      "Haití",
-      "Honduras",
-      "Jamaica",
-      "México",
-      "Nicaragua",
-      "Panamá",
-      "República Dominicana",
-      "San Cristóbal y Nieves",
-      "Santa Lucía",
-      "San Vicente y las Granadinas",
-      "Trinidad y Tobago",
-    ],
-
-    "Sudamérica": [
-      "Argentina",
-      "Bolivia",
-      "Brasil",
-      "Chile",
-      "Colombia",
-      "Ecuador",
-      "Guyana",
-      "Paraguay",
-      "Perú",
-      "Surinam",
-      "Uruguay",
-      "Venezuela",
-    ],
-
-    "Europa": [
-      "Albania",
-      "Alemania",
-      "Andorra",
-      "Austria",
-      "Bélgica",
-      "Bielorrusia",
-      "Bosnia y Herzegovina",
-      "Bulgaria",
-      "Chipre",
-      "Croacia",
-      "Dinamarca",
-      "Eslovaquia",
-      "Eslovenia",
-      "España",
-      "Estonia",
-      "Finlandia",
-      "Francia",
-      "Grecia",
-      "Hungría",
-      "Irlanda",
-      "Islandia",
-      "Italia",
-      "Letonia",
-      "Liechtenstein",
-      "Lituania",
-      "Luxemburgo",
-      "Macedonia del Norte",
-      "Malta",
-      "Moldavia",
-      "Mónaco",
-      "Montenegro",
-      "Noruega",
-      "Países Bajos",
-      "Polonia",
-      "Portugal",
-      "Reino Unido",
-      "República Checa",
-      "Rumania",
-      "Rusia",
-      "San Marino",
-      "Serbia",
-      "Suecia",
-      "Suiza",
-      "Ucrania",
-      "Ciudad del Vaticano",
-    ],
-
-    "Asia": [
-      "Afganistán",
-      "Bangladés",
-      "Bután",
-      "Brunéi",
-      "Camboya",
-      "China",
-      "Corea del Norte",
-      "Corea del Sur",
-      "Filipinas",
-      "India",
-      "Indonesia",
-      "Japón",
-      "Kazajistán",
-      "Kirguistán",
-      "Laos",
-      "Malasia",
-      "Maldivas",
-      "Mongolia",
-      "Myanmar",
-      "Nepal",
-      "Pakistán",
-      "Singapur",
-      "Sri Lanka",
-      "Tailandia",
-      "Tayikistán",
-      "Timor Oriental",
-      "Turkmenistán",
-      "Uzbekistán",
-      "Vietnam",
-    ],
-
-    "Medio Oriente": [
-      "Arabia Saudita",
-      "Armenia",
-      "Azerbaiyán",
-      "Baréin",
-      "Emiratos Árabes Unidos",
-      "Georgia",
-      "Irak",
-      "Irán",
-      "Israel",
-      "Jordania",
-      "Kuwait",
-      "Líbano",
-      "Omán",
-      "Palestina",
-      "Catar",
-      "Siria",
-      "Turquía",
-      "Yemen",
-    ],
-
-    "África": [
-      "Angola",
-      "Argelia",
-      "Benín",
-      "Botsuana",
-      "Burkina Faso",
-      "Burundi",
-      "Cabo Verde",
-      "Camerún",
-      "Chad",
-      "Comoras",
-      "Costa de Marfil",
-      "Egipto",
-      "Eritrea",
-      "Esuatini",
-      "Etiopía",
-      "Gabón",
-      "Gambia",
-      "Ghana",
-      "Guinea",
-      "Guinea-Bisáu",
-      "Guinea Ecuatorial",
-      "Kenia",
-      "Lesoto",
-      "Liberia",
-      "Libia",
-      "Madagascar",
-      "Malaui",
-      "Malí",
-      "Marruecos",
-      "Mauricio",
-      "Mauritania",
-      "Mozambique",
-      "Namibia",
-      "Níger",
-      "Nigeria",
-      "República Centroafricana",
-      "República del Congo",
-      "República Democrática del Congo",
-      "Ruanda",
-      "Santo Tomé y Príncipe",
-      "Senegal",
-      "Seychelles",
-      "Sierra Leona",
-      "Somalia",
-      "Sudáfrica",
-      "Sudán",
-      "Sudán del Sur",
-      "Tanzania",
-      "Togo",
-      "Túnez",
-      "Uganda",
-      "Yibuti",
-      "Zambia",
-      "Zimbabue",
-    ],
-
-    "Oceanía": [
-      "Australia",
-      "Fiyi",
-      "Islas Marshall",
-      "Islas Salomón",
-      "Kiribati",
-      "Micronesia",
-      "Nauru",
-      "Nueva Zelanda",
-      "Palaos",
-      "Papúa Nueva Guinea",
-      "Samoa",
-      "Tonga",
-      "Tuvalu",
-      "Vanuatu",
-    ],
-
-    "Otras regiones": [],
-  };
-
-  /*
-   * Alias frecuentes para que la información guardada por Captura
-   * se normalice al mismo país mostrado en la interfaz.
-   */
-  const COUNTRY_ALIASES = {
-    "canada": "Canadá",
-    "canadá": "Canadá",
-    "united states": "Estados Unidos",
-    "united states of america": "Estados Unidos",
-    "usa": "Estados Unidos",
-    "us": "Estados Unidos",
-    "estados unidos": "Estados Unidos",
-
-    "mexico": "México",
-    "méxico": "México",
-    "panama": "Panamá",
-    "panamá": "Panamá",
-    "dominican republic": "República Dominicana",
-    "republica dominicana": "República Dominicana",
-    "república dominicana": "República Dominicana",
-
-    "brazil": "Brasil",
-    "brasil": "Brasil",
-    "peru": "Perú",
-    "perú": "Perú",
-
-    "spain": "España",
-    "españa": "España",
-    "germany": "Alemania",
-    "alemania": "Alemania",
-    "france": "Francia",
-    "francia": "Francia",
-    "italy": "Italia",
-    "italia": "Italia",
-    "united kingdom": "Reino Unido",
-    "uk": "Reino Unido",
-    "reino unido": "Reino Unido",
-    "netherlands": "Países Bajos",
-    "paises bajos": "Países Bajos",
-    "países bajos": "Países Bajos",
-    "czech republic": "República Checa",
-    "czechia": "República Checa",
-    "russia": "Rusia",
-    "rusia": "Rusia",
-
-    "japan": "Japón",
-    "japon": "Japón",
-    "japón": "Japón",
-    "south korea": "Corea del Sur",
-    "north korea": "Corea del Norte",
-    "philippines": "Filipinas",
-    "thailand": "Tailandia",
-    "vietnam": "Vietnam",
-
-    "saudi arabia": "Arabia Saudita",
-    "united arab emirates": "Emiratos Árabes Unidos",
-    "uae": "Emiratos Árabes Unidos",
-    "qatar": "Catar",
-    "turkey": "Turquía",
-    "turkiye": "Turquía",
-    "türkiye": "Turquía",
-
-    "egypt": "Egipto",
-    "south africa": "Sudáfrica",
-    "morocco": "Marruecos",
-    "ivory coast": "Costa de Marfil",
-    "democratic republic of the congo": "República Democrática del Congo",
-    "republic of the congo": "República del Congo",
-
-    "new zealand": "Nueva Zelanda",
-    "papua new guinea": "Papúa Nueva Guinea",
-    "solomon islands": "Islas Salomón",
-    "marshall islands": "Islas Marshall",
-  };
-
-  /*
-   * Indexar automáticamente todos los nombres canónicos en español.
-   */
-  Object.values(COUNTRIES_BY_REGION)
-    .flat()
-    .forEach((country) => {
-      COUNTRY_ALIASES[normalize(country)] = country;
-    });
+  let COUNTRIES_BY_REGION = {};
+  let COUNTRY_ALIASES = {};
 
   function init() {
     el.breadcrumb = document.getElementById("mapBreadcrumb");
@@ -362,11 +50,15 @@ const GeoMap = (() => {
     el.grid.innerHTML = loadingState("Cargando inteligencia geográfica…");
 
     try {
-      const [customerRows, customRows] = await Promise.all([
+      const [customerRows, customRows, catalog] = await Promise.all([
         Api.getCustomers(),
         Api.getCustomCountries(),
+        Api.getGeographyCatalog(),
       ]);
 
+      COUNTRIES_BY_REGION = catalog.regions;
+      COUNTRY_ALIASES = Object.fromEntries(Object.entries(catalog.aliases).map(([key, value]) => [normalize(key), value]));
+      Object.values(COUNTRIES_BY_REGION).flat().forEach(country => { COUNTRY_ALIASES[normalize(country)] = country; });
       customers = customerRows;
       customCountries = customRows;
 
@@ -387,7 +79,7 @@ const GeoMap = (() => {
   function normalize(value) {
     return String(value || "")
       .trim()
-      .toLowerCase();
+      .toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
 
   function isMissingCountry(value) {
@@ -1131,13 +823,7 @@ const GeoMap = (() => {
          * También refrescar las otras vistas para que Customer 360 y
          * Panorama tengan la ubicación actualizada.
          */
-        if (typeof Customer360?.refresh === "function") {
-          Customer360.refresh();
-        }
-
-        if (typeof Dashboard?.refresh === "function") {
-          Dashboard.refresh();
-        }
+        window.dispatchEvent(new CustomEvent("fieldscope:data-changed", { detail: { source: "geography" } }));
 
         toast(
           "Ubicación asignada",

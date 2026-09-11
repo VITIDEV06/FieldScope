@@ -7,10 +7,14 @@
   const views = [...document.querySelectorAll(".view")];
 
   const labels = {
+    home: "Home",
     capture: "Captura",
     customer: "Cliente 360",
     map: "Geografía",
     dashboard: "Panorama",
+    installed: "Installed Base",
+    queries: "Consultas",
+    opportunities: "Oportunidades",
   };
 
   const loaded = new Set();
@@ -21,6 +25,7 @@
   const mobileClose = document.getElementById("mobileClose");
 
   function showView(name) {
+    if (name !== "capture") window.dispatchEvent(new Event("fieldscope:leave-capture"));
     navItems.forEach((button) => {
       button.classList.toggle("is-active", button.dataset.view === name);
     });
@@ -47,6 +52,16 @@
       Dashboard.refresh();
     }
 
+    if (name === "installed") {
+      loaded.add("installed");
+      InstalledBase.refresh();
+    }
+
+    if (name === "opportunities") {
+      loaded.add("opportunities");
+      InstalledBase.refreshOpportunities();
+    }
+
     closeSidebar();
   }
 
@@ -56,6 +71,11 @@
     button.addEventListener("click", () => {
       showView(button.dataset.view);
     });
+  });
+
+  document.addEventListener("click", (event) => {
+    const go = event.target.closest("[data-go]");
+    if (go) showView(go.dataset.go);
   });
 
   function openSidebar() {
@@ -97,7 +117,7 @@
         }
 
         if (globalStatus) {
-          globalStatus.textContent = "QVAC local · Offline ready";
+          globalStatus.textContent = "QVAC local · Listo";
         }
       } else {
         if (aiLabel) {
@@ -193,6 +213,7 @@
     safetyNode.textContent = safetyNote;
     accept.textContent = confirmText;
 
+    const previousFocus = document.activeElement;
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");
 
@@ -213,6 +234,7 @@
         modal.removeEventListener("click", onBackdrop);
         document.removeEventListener("keydown", onKeydown);
 
+        previousFocus?.focus();
         resolve(value);
       };
 
@@ -226,6 +248,12 @@
       };
 
       const onKeydown = (event) => {
+        if (event.key === "Tab") {
+          const focusable = [...modal.querySelectorAll("button:not([disabled])")];
+          const first = focusable[0], last = focusable.at(-1);
+          if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+          else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        }
         if (event.key === "Escape") {
           finish(false);
         }
@@ -247,11 +275,19 @@
       }
 
       if (loaded.has("map")) {
-        await GeoMap.refresh();
+        await GeoMap.refresh({ preservePath: true });
       }
 
       if (loaded.has("dashboard")) {
         await Dashboard.refresh();
+      }
+
+      if (loaded.has("installed")) {
+        await InstalledBase.refresh();
+      }
+
+      if (loaded.has("opportunities")) {
+        await InstalledBase.refreshOpportunities();
       }
 
       await checkSystemStatus();
@@ -293,6 +329,7 @@
     Customer360.init();
     GeoMap.init();
     Dashboard.init();
+    InstalledBase.init();
 
     wireDataRefresh();
     wireSearchShortcut();

@@ -62,12 +62,16 @@ async def main():
         ct = equipment.get("CT")
 
         checks = [
+            (result.get("customer_name") == "Hospital DemoCare Pacific", "Cliente incorrecto"),
+            (result.get("country") == "Panamá", "País incorrecto"),
             (mr is not None, "Debe existir MR"),
             (ct is not None, "Debe existir CT"),
             (mr is not None and mr.get("estimated_age") == 8.0, "MR debe conservar edad 8"),
             (ct is not None and ct.get("estimated_age") is None, "CT debe conservar edad desconocida"),
             (mr is not None and mr.get("model") is None, "Siemens no debe copiarse como modelo"),
             (ct is not None and ct.get("model") is None, "Philips no debe copiarse como modelo"),
+            (mr is not None and mr.get("quantity") == 2 and mr.get("manufacturer") == "Siemens", "MR: cantidad/fabricante incorrectos"),
+            (ct is not None and ct.get("quantity") == 1 and ct.get("manufacturer") == "Philips", "CT: cantidad/fabricante incorrectos"),
         ]
 
         failures = [message for ok, message in checks if not ok]
@@ -77,8 +81,11 @@ async def main():
             )
 
         status = get_ai_runtime_status()
+        print(json.dumps(status, ensure_ascii=False, indent=2))
         if status.get("cloud_inference") is not False or not status.get("qvac_ready"):
             raise RuntimeError("El estado del runtime no confirma QVAC local listo.")
+        if status.get("last_inference_note") != "qvac_local":
+            raise RuntimeError("La extracción necesitó reparación local; no equivale a JSON QVAC validado.")
 
         print("\nOK: extracción estructurada validada (MR=8, CT=null, modelos=null).")
         print("OK: QVAC realizó la extracción en este dispositivo.")

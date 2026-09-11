@@ -11,6 +11,7 @@
   <title>Fieldscope Intelligence</title>
 
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 </head>
 
 <body>
@@ -54,7 +55,13 @@
       <div class="nav-caption">Workspace</div>
 
       <nav class="nav-list" aria-label="Navegación principal">
-        <button class="nav-item is-active" data-view="capture" type="button">
+        <button class="nav-item is-active" data-view="home" type="button">
+          <span class="nav-icon">⌂</span>
+          <span class="nav-copy"><strong>Home</strong><small>Flujo de demo</small></span>
+          <span class="nav-indicator"></span>
+        </button>
+
+        <button class="nav-item" data-view="capture" type="button">
           <span class="nav-icon">
             <svg viewBox="0 0 24 24"><path d="M4 5.5h16v10H9l-5 4v-14Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8 10h8M8 13h5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
           </span>
@@ -73,6 +80,24 @@
             <strong>Cliente 360</strong>
             <small>Vista por instalación</small>
           </span>
+          <span class="nav-indicator"></span>
+        </button>
+
+        <button class="nav-item" data-view="installed" type="button">
+          <span class="nav-icon">▦</span>
+          <span class="nav-copy"><strong>Installed Base</strong><small>Equipos por cliente</small></span>
+          <span class="nav-indicator"></span>
+        </button>
+
+        <button class="nav-item" data-view="queries" type="button">
+          <span class="nav-icon">⌕</span>
+          <span class="nav-copy"><strong>Consultas</strong><small>Datos locales</small></span>
+          <span class="nav-indicator"></span>
+        </button>
+
+        <button class="nav-item" data-view="opportunities" type="button">
+          <span class="nav-icon">↗</span>
+          <span class="nav-copy"><strong>Oportunidades</strong><small>Señales de renovación</small></span>
           <span class="nav-indicator"></span>
         </button>
 
@@ -141,7 +166,7 @@
           <div class="breadcrumb-app">
             <span>Customer Installed Base</span>
             <svg viewBox="0 0 20 20"><path d="m7.5 5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <strong id="currentViewLabel">Captura</strong>
+            <strong id="currentViewLabel">Home</strong>
           </div>
         </div>
 
@@ -165,7 +190,22 @@
         <!-- ==================================================
              CAPTURA
              ================================================== -->
-        <section class="view is-active" id="view-capture" data-view-panel="capture">
+        <section class="view is-active" id="view-home" data-view-panel="home">
+          <div class="page-heading"><div class="heading-copy"><div class="eyebrow">Philips / QVAC Challenge</div><h1>FieldScope</h1><p>Captura privada y local del parque instalado de equipos médicos.</p></div></div>
+          <div class="home-grid">
+            <article class="panel home-hero">
+              <div class="eyebrow">Flujo principal</div>
+              <h2>Observación → QVAC → confirmación → Installed Base</h2>
+              <p>La información sensible se procesa en el dispositivo. La app no guarda la extracción hasta que el usuario la confirma.</p>
+              <button class="primary-button" type="button" data-go="capture">Crear nueva observación</button>
+            </article>
+            <article class="panel home-card"><strong>Installed Base</strong><p>Consulta equipos por cliente, país, ciudad, modalidad, marca, antigüedad y estado.</p><button class="secondary-button" type="button" data-go="installed">Abrir Installed Base</button></article>
+            <article class="panel home-card"><strong>Consultas locales</strong><p>Pregunta por resonadores antiguos, equipos Philips o instalaciones de un país sin enviar el dataset a una API cloud.</p><button class="secondary-button" type="button" data-go="queries">Abrir consultas</button></article>
+            <article class="panel home-card"><strong>Oportunidades</strong><p>Señales conservadoras de renovación basadas en antigüedad y confianza.</p><button class="secondary-button" type="button" data-go="opportunities">Ver oportunidades</button></article>
+          </div>
+        </section>
+
+        <section class="view" id="view-capture" data-view-panel="capture">
           <div class="page-heading">
             <div class="heading-copy">
               <div class="eyebrow">
@@ -183,7 +223,7 @@
                 <span class="control-label">Reportado por</span>
                 <span class="input-shell">
                   <svg viewBox="0 0 20 20"><circle cx="10" cy="6.5" r="3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4 17c.5-3.2 2.6-5 6-5s5.5 1.8 6 5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-                  <input type="text" id="reporterName" value="Field Employee" />
+                  <input type="text" id="reporterName" maxlength="100" value="Field Employee" />
                 </span>
               </label>
             </div>
@@ -230,7 +270,8 @@
                 </div>
               </div>
 
-              <div class="chat-log" id="chatLog"></div>
+              <div class="chat-log" id="chatLog" role="log" aria-live="polite"></div>
+              <div id="voiceStatus" role="status" aria-live="polite"></div>
 
               <div class="chat-suggestions" id="chatSuggestions">
                 <span class="suggestions-label">Prueba rápida</span>
@@ -248,7 +289,7 @@
               <form class="composer" id="chatForm">
                 <div class="composer-main">
                   <textarea
-                    id="chatInput"
+                    id="chatInput" aria-label="Observación o respuesta" maxlength="4000"
                     rows="1"
                     placeholder="Ej.: Hospital Beta en Lima tiene dos CT Philips de unos 6 años…"
                     required
@@ -263,6 +304,9 @@
                   </div>
                 </div>
 
+                <button type="button" class="voice-button" id="voiceButton" aria-label="Captura de voz" title="Dictar con QVAC local · Esc para cancelar">
+                  🎙️
+                </button>
                 <button type="submit" class="send-button btn-send" aria-label="Enviar observación">
                   <svg viewBox="0 0 24 24"><path d="m4 4 16 8-16 8 3.4-8L4 4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M7.5 12H20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
                 </button>
@@ -287,9 +331,17 @@
               <div class="extract-progress">
                 <div>
                   <span>Calidad del registro</span>
-                  <strong>En construcción</strong>
+                  <strong id="qualityLabel">Sin datos</strong>
                 </div>
-                <div class="progress-track"><div class="progress-value"></div></div>
+                <div class="progress-track"><div class="progress-value" id="qualityProgress" style="width:0%"></div></div>
+              </div>
+
+              <div id="confirmActions" class="confirm-actions" hidden>
+                <div class="confirm-note">Revisa los datos. Nada se guarda hasta confirmar.</div>
+                <div class="confirm-buttons">
+                  <button type="button" class="secondary-button" id="cancelObservation">Descartar</button>
+                  <button type="button" class="primary-button" id="confirmObservation">Confirmar y guardar</button>
+                </div>
               </div>
 
               <div id="extractBody" class="extract-body">
@@ -323,7 +375,7 @@
 
             <label class="search-control">
               <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m15.4 15.4 4.3 4.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-              <input type="text" id="customerSearch" placeholder="Buscar cliente, ciudad o país…" />
+              <input type="text" id="customerSearch" aria-label="Buscar cliente" placeholder="Buscar cliente, ciudad o país…" />
               <span class="search-shortcut">⌘K</span>
             </label>
           </div>
@@ -356,6 +408,40 @@
         <!-- ==================================================
              MAP
              ================================================== -->
+        <section class="view" id="view-installed" data-view-panel="installed">
+          <div class="page-heading"><div class="heading-copy"><div class="eyebrow">Installed Base</div><h1>Parque instalado</h1><p>Filtra y revisa el equipamiento registrado localmente.</p></div></div>
+          <article class="panel simple-panel">
+            <div class="filter-grid" id="installedFilters">
+              <input id="filterCustomer" aria-label="Cliente" placeholder="Cliente" />
+              <input id="filterCountry" aria-label="País" placeholder="País" />
+              <input id="filterCity" aria-label="Ciudad" placeholder="Ciudad" />
+              <input id="filterModality" aria-label="Modalidad" placeholder="Modalidad (MR, CT...)" />
+              <input id="filterManufacturer" aria-label="Fabricante" placeholder="Marca" />
+              <input id="filterMinAge" aria-label="Antigüedad mínima" type="number" min="0" placeholder="Antigüedad mínima" />
+              <select id="filterState" aria-label="Estado"><option value="">Todos los estados</option><option>Confirmado</option><option>Reportado</option><option>Estimado</option><option>Desconocido</option></select>
+              <button class="primary-button" id="applyInstalledFilters" type="button">Aplicar filtros</button>
+            </div>
+            <div id="installedBaseTable" class="table-wrap"></div>
+          </article>
+        </section>
+
+        <section class="view" id="view-queries" data-view-panel="queries">
+          <div class="page-heading"><div class="heading-copy"><div class="eyebrow">Local Query</div><h1>Consultas en lenguaje natural</h1><p>El parser consulta SQLite localmente. No envía el dataset a la nube.</p></div></div>
+          <article class="panel simple-panel">
+            <form id="localQueryForm" class="query-form">
+              <input id="localQueryInput" maxlength="500" aria-label="Consulta local" placeholder="Ej.: ¿Qué resonadores tienen más de 7 años?" required />
+              <button class="primary-button" type="submit">Consultar</button>
+            </form>
+            <div class="query-examples">Prueba: “¿Qué clientes tienen equipos Philips?” · “Muéstrame los equipos registrados en Panamá.”</div>
+            <div id="localQueryResults" class="table-wrap"></div>
+          </article>
+        </section>
+
+        <section class="view" id="view-opportunities" data-view-panel="opportunities">
+          <div class="page-heading"><div class="heading-copy"><div class="eyebrow">Commercial Signal</div><h1>Oportunidades de renovación</h1><p>Señales basadas en antigüedad; requieren validación comercial.</p></div></div>
+          <div id="opportunityList" class="opportunity-grid"></div>
+        </section>
+
         <section class="view" id="view-map" data-view-panel="map">
           <div class="page-heading">
             <div class="heading-copy">
@@ -501,6 +587,8 @@
   <script src="js/customer360.js"></script>
   <script src="js/geomap.js"></script>
   <script src="js/dashboard.js"></script>
+  <script src="js/installedbase.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/voice.js"></script>
 </body>
 </html>

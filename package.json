@@ -1,0 +1,6 @@
+{
+  "name": "fieldscope-browser-qa",
+  "private": true,
+  "scripts": { "test:browser": "node tests/browser-smoke.cjs" },
+  "devDependencies": { "playwright": "1.62.1" }
+}

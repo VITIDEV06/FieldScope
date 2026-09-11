@@ -44,7 +44,7 @@ const Customer360 = (() => {
 
     try {
       customers = await Api.getCustomers();
-      renderList(customers);
+      renderList(filterCustomers(el.search.value));
 
       if (activeId) {
         const stillExists = customers.some((customer) => customer.id === activeId);
@@ -133,7 +133,7 @@ const Customer360 = (() => {
 
     try {
       const data = await Api.getCustomerDetail(id);
-      renderDetail(data);
+      if (activeId === id) renderDetail(data);
     } catch (error) {
       el.detail.innerHTML = errorBlock(
         "No se pudo cargar el cliente",
@@ -150,7 +150,7 @@ const Customer360 = (() => {
     const categories = equipment.length;
 
     const totalUnits = equipment.reduce(
-      (sum, item) => sum + Math.max(Number(item.quantity) || 1, 1),
+      (sum, item) => sum + Math.max(Number(item.quantity) || 0, 0),
       0
     );
 
@@ -254,9 +254,18 @@ const Customer360 = (() => {
 
         <div class="equipment-card-row">
           <span>Edad estimada</span>
-          <span>${eq.estimated_age ? `${eq.estimated_age} años` : "—"}</span>
+          <span>${eq.estimated_age != null ? `${eq.estimated_age} años` : "—"}</span>
         </div>
 
+        <div class="equipment-card-row">
+          <span>Estado</span><span>${observationStateBadge(eq.observation_state)}</span>
+        </div>
+        <div class="equipment-card-row">
+          <span>Última observación</span><span>${formatDate(eq.last_verified)}</span>
+        </div>
+        <div class="equipment-card-row">
+          <span>Actualidad</span><span>${escapeHtml(({fresh:"Reciente",aging:"Revalidar pronto",stale:"Revalidar",unknown:"Sin fecha"})[eq.freshness] || "Sin fecha")}</span>
+        </div>
         <div class="equipment-card-row">
           <span>Reportado</span>
           <span>${eq.times_reported ?? 0}×</span>
@@ -278,6 +287,7 @@ const Customer360 = (() => {
             <span>·</span>
             <span>${formatDate(observation.submitted_at)}</span>
             ${confidenceBadge(observation.confidence)}
+            ${observationStateBadge(observation.observation_state)}
           </div>
         </div>
 

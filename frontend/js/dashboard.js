@@ -20,7 +20,8 @@ const Dashboard = (() => {
     el.seedBtn.innerHTML = "Cargando datos…";
 
     try {
-      await Api.seed();
+      const result = await Api.seed();
+      if (!result.seeded) { toast("Dataset", result.message); return; }
       await refresh();
 
       window.dispatchEvent(
@@ -111,6 +112,10 @@ const Dashboard = (() => {
         meta: "Data quality",
         icon: "quality",
       },
+      { label: "Clientes con tecnología de 7+ años", value: data.aging_technology_customers ?? 0, meta: "Revisión comercial", icon: "quality" },
+      { label: "Clientes actualizados recientemente", value: data.recently_updated_customers ?? 0, meta: "Últimos 180 días", icon: "customers" },
+      { label: "Registros por revalidar", value: (data.freshness?.aging || 0) + (data.freshness?.stale || 0) + (data.freshness?.unknown || 0), meta: "Actualidad de datos", icon: "quality" },
+      { label: "Registros de alta confianza", value: (data.confidence || []).find(row => row.level === "High")?.total ?? 0, meta: "Calidad de evidencia", icon: "quality" },
     ];
 
     el.kpiRow.innerHTML = cards
@@ -190,9 +195,9 @@ const Dashboard = (() => {
     }
 
     const buckets = [
-      { label: "0–3 años", min: 0, max: 3, value: 0 },
-      { label: "4–7 años", min: 4, max: 7, value: 0 },
-      { label: "8–11 años", min: 8, max: 11, value: 0 },
+      { label: "0–<4 años", min: 0, max: 4, value: 0 },
+      { label: "4–<8 años", min: 4, max: 8, value: 0 },
+      { label: "8–<12 años", min: 8, max: 12, value: 0 },
       { label: "12+ años", min: 12, max: Infinity, value: 0 },
       { label: "Sin dato", min: null, max: null, value: 0 },
     ];
@@ -211,7 +216,7 @@ const Dashboard = (() => {
         (item) =>
           item.min !== null &&
           numericAge >= item.min &&
-          numericAge <= item.max
+          numericAge < item.max
       );
 
       if (bucket) bucket.value += numericTotal;

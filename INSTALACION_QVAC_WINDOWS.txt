@@ -1,142 +1,25 @@
-FIELDSCOPE + QVAC — INSTALACIÓN EN WINDOWS
+FIELDSCOPE — INSTALACIÓN QVAC EN WINDOWS
 
-OBJETIVO
-La inferencia de IA debe ocurrir EN EL DISPOSITIVO. No se utiliza OpenAI.
+La guía vigente está en README.md, secciones "Installation — Windows", "Testing" y "Troubleshooting".
 
-============================================================
-A. REQUISITOS DEL EQUIPO
-============================================================
+Instalación limpia, desde backend:
+  py -3.12 -m venv venv
+  .\venv\Scripts\Activate.ps1
+  python -m pip install --upgrade pip
+  python -m pip install -r requirements.txt
+  npm ci
+  python qvac_warmup.py
+  python qvac_voice_warmup.py
+  python run.py
 
-1. Windows 10/11 x64.
-2. Python 3.10 o superior (tu Python 3.11 sirve).
-3. Vulkan 1.4 o superior.
-4. Recomendado: 4 GB o más de RAM disponible.
-5. Espacio libre para el modelo/cache.
+Frontend en otra terminal, desde la raíz del repositorio:
+  py -3.12 -m http.server 5500 --bind 127.0.0.1 --directory frontend
 
-QVAC exige Vulkan >= 1.4 en Windows incluso para CPU inference.
+Abrir http://127.0.0.1:5500
+Health http://127.0.0.1:8001/api/health
 
-============================================================
-B. CONSERVA TUS DATOS
-============================================================
+El checkout auditado ya tiene un entorno separado .venv en la raíz. El README incluye los comandos directos para ese entorno y una base de demo sintética aislada.
 
-NO BORRES:
-backend/.env
-backend/data/installed_base.db
-backend/venv
+Texto: QVAC QWEN3_600M_INST_Q4. Voz: QVAC WHISPER_TINY, conectado y probado con audio sintético. Vision: no implementado. Python SDK y worker fijados en 0.18.1. La primera descarga requiere Internet; repetir los warmups sin conexión para verificar offline en el equipo.
 
-Puedes quitar del .env las líneas OPENAI_API_KEY y OPENAI_MODEL.
-El nuevo código no las utiliza.
-
-Agrega o deja:
-
-DATABASE_URL=sqlite:///./data/installed_base.db
-QVAC_MODEL=QWEN3_600M_INST_Q4
-QVAC_CTX_SIZE=4096
-QVAC_CACHE_DIR=./data/qvac-cache
-QVAC_REQUIRED=true
-
-============================================================
-C. INSTALAR QVAC EN TU VENV
-============================================================
-
-PowerShell:
-
-cd "C:\\Users\\jorge\\OneDrive\\Documentos\\customer-installed-base\\backend"
-venv\\Scripts\\activate
-
-Primero actualiza pip:
-python -m pip install --upgrade pip
-
-Opción recomendada en Windows x64: bundled wheel 0.18.1:
-pip install "tetherto-qvac-sdk==0.18.1" -f "https://github.com/tetherto/qvac/releases/expanded_assets/sdk-v0.18.1"
-
-Después instala/actualiza el resto:
-pip install -r requirements.txt
-
-SI el bundled wheel no queda disponible:
-pip install "tetherto-qvac-sdk==0.18.1"
-python -m tetherto.qvac_sdk install-worker
-
-============================================================
-D. PREPARAR EL MODELO
-============================================================
-
-Con internet disponible UNA VEZ:
-
-python qvac_warmup.py
-
-La primera vez QVAC puede descargar el modelo a:
-backend/data/qvac-cache
-
-Debe terminar mostrando:
-OK: QVAC realizó la extracción en este dispositivo.
-
-============================================================
-E. PRUEBA OFFLINE REAL
-============================================================
-
-1. Apaga Wi-Fi / desconecta internet.
-2. Vuelve a ejecutar:
-
-python qvac_warmup.py
-
-Si vuelve a extraer correctamente, ya tienes una prueba muy fuerte
-de inferencia on-device.
-
-============================================================
-F. INICIAR LA APP
-============================================================
-
-Backend:
-python -m uvicorn main:app --host 127.0.0.1 --port 8001
-
-Frontend en otra terminal:
-cd "..\\frontend"
-python -m http.server 5500
-
-Abre:
-http://127.0.0.1:5500
-
-Health:
-http://127.0.0.1:8001/api/health
-
-Debe indicar aproximadamente:
-"inference_provider": "QVAC"
-"inference_location": "on_device"
-"extraction_mode": "qvac_on_device"
-"cloud_inference": false
-"network_required_for_inference": false
-"qvac_ready": true
-
-============================================================
-G. PRUEBA DE CAPTURA
-============================================================
-
-Visité Hospital DemoCare Pacific en Ciudad de Panamá, Panamá.
-Tienen dos equipos MR Siemens de aproximadamente 8 años y un CT Philips.
-
-El sistema debería:
-- extraer cliente, ciudad y país;
-- detectar MR x2;
-- detectar Siemens;
-- detectar 8 años;
-- detectar CT x1;
-- detectar Philips;
-- preguntar por la edad del CT si falta;
-- guardar la observación;
-- clasificarla como Estimado por el lenguaje aproximado.
-
-============================================================
-H. DEMO PARA EL JURADO
-============================================================
-
-1. Muestra /api/health con QVAC on-device.
-2. Desconecta internet.
-3. Haz una captura conversacional.
-4. Responde la pregunta de seguimiento.
-5. Abre Cliente 360.
-6. Abre Geografía.
-7. Abre Panorama.
-
-Así demuestras que la observación sensible no necesita una API de IA
-en la nube para convertirse en información estructurada.
+Conservar .env, bases SQLite, cache y entornos existentes. No subir esos archivos a GitHub.
